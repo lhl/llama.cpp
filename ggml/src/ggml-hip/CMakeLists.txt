@@ -130,6 +130,17 @@ if (GGML_HIP_EXPORT_METRICS)
     set(CMAKE_HIP_FLAGS "${CMAKE_HIP_FLAGS} -Rpass-analysis=kernel-resource-usage --save-temps")
 endif()
 
+if (NOT "${GGML_HIP_AMDGPU_UNROLL_THRESHOLD_LOCAL}" STREQUAL "")
+    if (NOT "${GGML_HIP_AMDGPU_UNROLL_THRESHOLD_LOCAL}" MATCHES "^[0-9]+$")
+        message(FATAL_ERROR "GGML_HIP_AMDGPU_UNROLL_THRESHOLD_LOCAL must be a non-negative integer")
+    endif()
+
+    target_compile_options(ggml-hip PRIVATE
+        -mllvm
+        -amdgpu-unroll-threshold-local=${GGML_HIP_AMDGPU_UNROLL_THRESHOLD_LOCAL})
+    message(STATUS "HIP AMDGPU local unroll threshold: ${GGML_HIP_AMDGPU_UNROLL_THRESHOLD_LOCAL}")
+endif()
+
 if (NOT GGML_CUDA_FA)
     add_compile_definitions(GGML_CUDA_NO_FA)
 endif()
